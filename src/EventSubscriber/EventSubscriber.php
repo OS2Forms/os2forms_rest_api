@@ -68,7 +68,8 @@ class EventSubscriber implements EventSubscriberInterface {
     if (preg_match('/\.GET$/', $routeName)) {
       $webformId = $this->routeMatch->getParameter('webform_id');
       $submissionUuid = $this->routeMatch->getParameter('uuid');
-    } else {
+    }
+    else {
       // POST and PATCH requests have webform id and submission uuid in the
       // request body.
       try {
