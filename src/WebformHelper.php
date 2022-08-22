@@ -57,7 +57,6 @@ class WebformHelper {
     $formObject = $form_state->getFormObject();
     /** @var \Drupal\webform\WebformInterface $webform */
     $webform = $formObject->getEntity();
-    $settings = $webform->getThirdPartySetting('os2forms', 'os2forms_rest_api');
 
     $form['third_party_settings']['os2forms']['os2forms_rest_api'] = [
       '#type' => 'details',
@@ -66,8 +65,7 @@ class WebformHelper {
       '#tree' => TRUE,
     ];
 
-    $allowedUsers = $this->loadUsers($settings['allowed_users'] ?? []);
-
+    $allowedUsers = $this->getAllowedUsers($webform);
     $form['third_party_settings']['os2forms']['os2forms_rest_api']['allowed_users'] = [
       '#type' => 'entity_autocomplete',
       '#target_type' => 'user',
@@ -259,9 +257,7 @@ class WebformHelper {
 
       // User has API access.
       $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($matches['webform']);
-      $settings = $webform->getThirdPartySetting('os2forms', 'os2forms_rest_api');
-
-      $allowedUsers = $this->loadUsers($settings['allowed_users'] ?? []);
+      $allowedUsers = $this->getAllowedUsers($webform);
 
       // If allowed users is non-empty and user is not in there deny access.
       if (!empty($allowedUsers) && !isset($allowedUsers[$user->id()])) {
