@@ -63,16 +63,25 @@ class EventSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $webformId = $this->routeMatch->getParameter('webform_id');
-    $submissionUuid = $this->routeMatch->getParameter('uuid');
-
-    // Handle webform submission.
-    if ('rest.webform_rest_submit.POST' === $routeName) {
+    // GET request have the webform id and (optional) submission uuid in the
+    // query string.
+    if (preg_match('/\.GET$/', $routeName)) {
+      $webformId = $this->routeMatch->getParameter('webform_id');
+      $submissionUuid = $this->routeMatch->getParameter('uuid');
+    } else {
+      // POST and PATCH requests have webform id and submission uuid in the
+      // request body.
       try {
         $content = json_decode($event->getRequest()->getContent(), TRUE, 512, JSON_THROW_ON_ERROR);
-        $webformId = (string) $content['webform_id'];
+        if (isset($content['webform_id'])) {
+          $webformId = (string) $content['webform_id'];
+        }
+        if (isset($content['submission_uuid'])) {
+          $submissionUuid = (string) $content['submission_uuid'];
+        }
       }
       catch (\JsonException $exception) {
+        // Invalid JSON body. We cannot get webform id from request body.
       }
     }
 
@@ -80,7 +89,7 @@ class EventSubscriber implements EventSubscriberInterface {
       throw new BadRequestHttpException('Cannot get webform id');
     }
 
-    $webform = $this->webformHelper->getWebform($webformId, $submissionUuid);
+    $webform = $this->webformHelper->getWebform($webformId, $submissionUuid ?? NULL);
 
     if (NULL === $webform) {
       return;
