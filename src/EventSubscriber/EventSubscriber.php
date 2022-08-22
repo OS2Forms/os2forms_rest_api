@@ -59,7 +59,7 @@ class EventSubscriber implements EventSubscriberInterface {
       'rest.webform_rest_submission.PATCH',
       'rest.webform_rest_submit.POST',
     ];
-    if ($this->currentUser->isAnonymous() || !in_array($routeName, $restRouteNames, TRUE)) {
+    if (!in_array($routeName, $restRouteNames, TRUE)) {
       return;
     }
 
@@ -95,8 +95,11 @@ class EventSubscriber implements EventSubscriberInterface {
       return;
     }
 
+    // Never allow access for anonymous users.
+    // If allowed users are set on the form, the current must be in the list to
+    // get access.
     $allowedUsers = $this->webformHelper->getAllowedUsers($webform);
-    if (!empty($allowedUsers) && !isset($allowedUsers[$this->currentUser->id()])) {
+    if ($this->currentUser->isAnonymous() || (!empty($allowedUsers) && !isset($allowedUsers[$this->currentUser->id()]))) {
       throw new AccessDeniedHttpException('Access denied');
     }
   }
