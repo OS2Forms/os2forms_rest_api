@@ -4,6 +4,7 @@ services:
       - '@entity_type.manager'
       - '@current_user'
       - '@key_auth.authentication.key_auth'
+      - '@request_stack'
 
   Drupal\os2forms_rest_api\EventSubscriber\EventSubscriber:
     arguments:

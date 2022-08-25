@@ -10,6 +10,7 @@ use Drupal\Core\Url;
 use Drupal\key_auth\Authentication\Provider\KeyAuth;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Webform helper for helping with webforms.
@@ -39,12 +40,20 @@ class WebformHelper {
   private KeyAuth $keyAuth;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  private RequestStack $requestStack;
+
+  /**
    * Constructor.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, AccountProxyInterface $currentUser, KeyAuth $keyAuth) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, AccountProxyInterface $currentUser, KeyAuth $keyAuth, RequestStack $requestStack) {
     $this->entityTypeManager = $entityTypeManager;
     $this->currentUser = $currentUser;
     $this->keyAuth = $keyAuth;
+    $this->requestStack = $requestStack;
   }
 
   /**
@@ -244,7 +253,7 @@ class WebformHelper {
    * @phpstan-return int|array<string, string>|null
    */
   public function fileDownload(string $uri) {
-    $request = \Drupal::request();
+    $request = $this->requestStack->getCurrentRequest();
 
     if ($user = $this->keyAuth->authenticate($request)) {
       // Find webform id from uri, see example uri.
