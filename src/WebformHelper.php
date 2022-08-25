@@ -255,15 +255,20 @@ class WebformHelper {
         return -1;
       }
 
-      // User has API access.
-      $webform = \Drupal::entityTypeManager()->getStorage('webform')->load($matches['webform']);
-      $allowedUsers = $this->getAllowedUsers($webform);
+      // User has API access. Try to load the webform.
+      $webform = $this->getWebform($matches['webform']);
+      if (NULL === $webform) {
+        // Deny access if webform cannot be loaded.
+        return -1;
+      }
 
+      $allowedUsers = $this->getAllowedUsers($webform);
       // If allowed users is non-empty and user is not in there deny access.
       if (!empty($allowedUsers) && !isset($allowedUsers[$user->id()])) {
         return -1;
       }
     }
+
     return NULL;
   }
 
