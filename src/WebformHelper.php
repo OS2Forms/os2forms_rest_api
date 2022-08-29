@@ -4,6 +4,7 @@ namespace Drupal\os2forms_rest_api;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
@@ -228,11 +229,34 @@ class WebformHelper {
    * @return \Drupal\user\UserInterface[]|array
    *   The users.
    */
-  public function getAllowedUsers(WebformInterface $webform): array {
+  private function getAllowedUsers(WebformInterface $webform): array {
     $settings = $webform->getThirdPartySetting('os2forms', 'os2forms_rest_api');
     $allowedUserIds = $settings['allowed_users'] ?? [];
 
     return $this->loadUsers($allowedUserIds);
+  }
+
+  /**
+   * Check if a user has access to a webform.
+   *
+   * A user has access to a webform if the list of allowed users is empty or the
+   * user is included in the list.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   The webform.
+   * @param \Drupal\Core\Session\AccountInterface|int $user
+   *   The user or user id.
+   *
+   * @return bool
+   *   True if user has access to the webform.
+   */
+  public function hasWebformAccess(WebformInterface $webform, $user): bool {
+    $userId = $user instanceof AccountInterface ? $user->id() : $user;
+    assert(is_int($userId));
+
+    $allowedUsers = $this->getAllowedUsers($webform);
+
+    return empty($allowedUsers) || isset($allowedUsers[$userId]);
   }
 
   /**
@@ -250,34 +274,34 @@ class WebformHelper {
   /**
    * Implements hook_file_download().
    *
+   * Note: This is only used to deny access to a file that is attached to a
+   * webform (submission) that the user does not have permission to access.
+   * Permission to access private files are handles elsewhere.
+   *
    * @phpstan-return int|array<string, string>|null
    */
   public function fileDownload(string $uri) {
     $request = $this->requestStack->getCurrentRequest();
 
+    // We are only concerned with users authenticated via Key Auth (cf.
+    // os2forms_rest_api.services.yml).
     if ($user = $this->keyAuth->authenticate($request)) {
       // Find webform id from uri, see example uri.
       // @Example: private://webform/some_webform_id/119/some_file_name.png
       $pattern = '/private:\/\/webform\/(?<webform>[^\/]*)/';
-      if (!preg_match($pattern, $uri, $matches)) {
-        // Something is not right, deny access.
-        return -1;
-      }
-
-      // User has API access. Try to load the webform.
-      $webform = $this->getWebform($matches['webform']);
-      if (NULL === $webform) {
-        // Deny access if webform cannot be loaded.
-        return -1;
-      }
-
-      $allowedUsers = $this->getAllowedUsers($webform);
-      // If allowed users is non-empty and user is not in there deny access.
-      if (!empty($allowedUsers) && !isset($allowedUsers[$user->id()])) {
-        return -1;
+      if (preg_match($pattern, $uri, $matches)) {
+        $webform = $this->getWebform($matches['webform']);
+        if (NULL !== $webform) {
+          // Deny access to file if user does not have access to the webform.
+          if (!$this->hasWebformAccess($webform, $user)) {
+            return -1;
+          }
+        }
       }
     }
 
+    // We cannot deny access to the file. Let others handle the access control
+    // for the (private) file.
     return NULL;
   }
 

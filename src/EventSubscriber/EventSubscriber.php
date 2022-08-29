@@ -96,11 +96,7 @@ class EventSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    // Never allow access for anonymous users.
-    // If allowed users are set on the form, the current must be in the list to
-    // get access.
-    $allowedUsers = $this->webformHelper->getAllowedUsers($webform);
-    if ($this->currentUser->isAnonymous() || (!empty($allowedUsers) && !isset($allowedUsers[$this->currentUser->id()]))) {
+    if (!$this->webformHelper->hasWebformAccess($webform, $this->currentUser)) {
       throw new AccessDeniedHttpException('Access denied');
     }
   }
