@@ -1,0 +1,9 @@
+name: 'OS2Forms REST API'
+type: module
+description: 'OS2Forms REST API'
+package: OS2Forms
+core_version_requirement: ^9
+dependencies:
+  - drupal:key_auth
+  - drupal:webform
+  - drupal:webform_rest
