@@ -105,6 +105,10 @@ jobs:
           # Restore Drupal composer repository.
           composer --no-interaction --working-dir=drupal config repositories.drupal composer https://packages.drupal.org/8
 
+          composer --no-interaction --working-dir=drupal config --no-plugins allow-plugins.cweagans/composer-patches true
+          # @see https://getcomposer.org/doc/03-cli.md#modifying-extra-values
+          composer --no-interaction --working-dir=drupal config --no-plugins --json extra.enable-patching true
+
           # Require our module.
           composer --no-interaction --working-dir=drupal require 'os2forms/os2forms_rest_api:*'
 

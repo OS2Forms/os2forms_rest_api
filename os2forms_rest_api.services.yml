@@ -1,4 +1,8 @@
 services:
+  logger.channel.os2forms_rest_api:
+    parent: logger.channel_base
+    arguments: [ 'os2forms_rest_api' ]
+
   Drupal\os2forms_rest_api\WebformHelper:
     arguments:
       - '@entity_type.manager'
@@ -6,11 +10,18 @@ services:
       - '@key_auth.authentication.key_auth'
       - '@request_stack'
 
-  Drupal\os2forms_rest_api\EventSubscriber\EventSubscriber:
+  Drupal\os2forms_rest_api\EventSubscriber\WebformAccessEventSubscriber:
     arguments:
       - '@current_route_match'
       - '@current_user'
       - '@Drupal\os2forms_rest_api\WebformHelper'
+    tags:
+      - { name: 'event_subscriber' }
+
+  Drupal\os2forms_rest_api\EventSubscriber\WebformSubmissionDataEventSubscriber:
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.channel.os2forms_rest_api'
     tags:
       - { name: 'event_subscriber' }
 

@@ -251,7 +251,9 @@ class WebformHelper {
    *   True if user has access to the webform.
    */
   public function hasWebformAccess(WebformInterface $webform, $user): bool {
-    $userId = $user instanceof AccountInterface ? $user->id() : $user;
+    // AccountInterface::id() should return an `int` but actually returns a
+    // `string`.
+    $userId = (int) ($user instanceof AccountInterface ? $user->id() : $user);
     assert(is_int($userId));
 
     $allowedUsers = $this->getAllowedUsers($webform);

@@ -12,9 +12,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Event subscriber.
+ * Webform access event subscriber.
  */
-class EventSubscriber implements EventSubscriberInterface {
+class WebformAccessEventSubscriber implements EventSubscriberInterface {
   /**
    * The route match.
    *
