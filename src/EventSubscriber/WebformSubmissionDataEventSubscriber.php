@@ -5,6 +5,8 @@ namespace Drupal\os2forms_rest_api\EventSubscriber;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\FileInterface;
 use Drupal\webform\WebformInterface;
+use Drupal\webform\WebformSubmissionInterface;
+use Drupal\webform_entity_print_attachment\Element\WebformEntityPrintAttachment;
 use Drupal\webform_rest\Event\WebformSubmissionDataEvent;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -52,6 +54,11 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
 
     if (!empty($linkedData)) {
       $event->setData($event->getData() + ['linked' => $linkedData]);
+    }
+
+    $attachments = $this->buildAttachments($event->getWebformSubmission(), $event->getData());
+    if (!empty($attachments)) {
+      $event->setData($event->getData() + ['attachments' => $attachments]);
     }
   }
 
@@ -112,6 +119,35 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
       }
     }
     return $linked;
+  }
+
+  /**
+   * Builds attachment data.
+   *
+   * @phpstan-param array<string, mixed> $data
+   * @phpstan-return array<string, mixed>
+   */
+  private function buildAttachments(WebformSubmissionInterface $submission, array $data): array {
+    $attachments = [];
+
+    $webform = $submission->getWebform();
+    $attachmentElements = $webform->getElementsAttachments();
+
+    foreach ($attachmentElements as $key => $name) {
+      $element = $webform->getElement($key);
+
+      if (preg_match('/^webform_entity_print_attachment:(?<type>.+)/', $element['#type'] ?? '', $matches)) {
+        $type = $matches['type'];
+        $url = WebformEntityPrintAttachment::getFileUrl($element, $submission);
+        $attachments[$key] = [
+          'name' => $element['#title'] ?? $name,
+          'type' => $type,
+          'url' => $url->toString(TRUE)->getGeneratedUrl(),
+        ];
+      }
+    }
+
+    return $attachments;
   }
 
   /**
