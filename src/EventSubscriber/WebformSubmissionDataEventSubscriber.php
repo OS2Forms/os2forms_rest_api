@@ -58,7 +58,8 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
   /**
    * Builds linked entity data.
    *
-   * @see https://support.deskpro.com/en/guides/developers/deskpro-api/basics/sideloading
+   * This is heavily inspired by “Sideloading” in Deskpro
+   * (https://support.deskpro.com/en-US/guides/developers/deskpro-api/basics/sideloading).
    *
    * @phpstan-param array<string, mixed> $data
    * @phpstan-return array<string, mixed>
