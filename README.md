@@ -169,7 +169,28 @@ To make using the REST API easier we add linked data to `GET` responses:
 }
 ```
 
-### Technical details on linked data
+## Attachments
+
+Attachment elements are added to `GET` responses:
+
+```json
+{
+  …
+  "data": {
+    …
+    "attachments": {
+      "attachment_pdf": {
+        "name": "Attachment (pdf)",
+        "type": "pdf",
+        "url": "http://os2forms.example.com/da/webform/os2forms/submissions/42/attachment/pdf/pdf.pdf"
+      },
+      …
+    }
+  }
+}
+```
+
+### Technical details on linked data and attachments
 
 In order to add linked data, we apply a patch,
 [webform_rest_submission.patch](patches/webform_rest_submission.patch), to the
