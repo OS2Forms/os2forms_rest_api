@@ -316,7 +316,7 @@ class WebformHelper {
    *   The current user.
    */
   public function getCurrentUser(): AccountProxyInterface {
-      return $this->currentUser;
+    return $this->currentUser;
   }
 
 }
