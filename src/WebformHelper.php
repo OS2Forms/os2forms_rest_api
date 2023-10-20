@@ -100,8 +100,8 @@ class WebformHelper {
     $routes = [
       'rest.webform_rest_elements.GET',
       'rest.webform_rest_fields.GET',
+      'rest.webform_rest_form_submissions.GET',
       'rest.webform_rest_submission.GET',
-      'rest.webform_rest_all_form_submissions.GET',
     ];
 
     $requireUuid = static function ($route) {

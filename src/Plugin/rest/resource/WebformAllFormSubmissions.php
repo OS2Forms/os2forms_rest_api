@@ -9,18 +9,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Creates a resource for retrieving webform submission data and fields.
+ * Creates a rest resource for retrieving webform submissions.
  *
  * @RestResource(
- *   id = "webform_rest_all_form_submissions",
- *   label = @Translation("Webform - All submissions for a form"),
+ *   id = "webform_rest_form_submissions",
+ *   label = @Translation("Webform - submissions for a form"),
  *   uri_paths = {
- *     "canonical" = "/webform_rest/{webform_id}/all"
+ *     "canonical" = "/webform_rest/{webform_id}/submissions"
  *   }
  * )
  */
 class WebformAllFormSubmissions extends ResourceBase {
-
   /**
    * The current request.
    *
@@ -44,6 +43,8 @@ class WebformAllFormSubmissions extends ResourceBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @phpstan-param array<string, mixed> $configuration
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
@@ -56,30 +57,23 @@ class WebformAllFormSubmissions extends ResourceBase {
   }
 
   /**
-   * Sets the current request.
+   * Sets current request.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $current_request
+   * @param \Symfony\Component\HttpFoundation\Request $currentRequest
    *   The current request.
-   *
-   * @return $this
-   *   Class.
    */
-  protected function setCurrentRequest(Request $current_request) {
-    $this->currentRequest = $current_request;
-    return $this;
+  protected function setCurrentRequest(Request $currentRequest): void {
+    $this->currentRequest = $currentRequest;
   }
 
   /**
-   * Retrieve all submissions for a given webform id.
+   * Get submissions for a given webform.
    *
    * @param string $webform_id
    *   Webform ID.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
-   *   HTTP response object containing webform submissions.
-   *
-   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-   *   Throws HttpException in case of error.
+   *   Response object.
    */
   public function get(string $webform_id): ModifiedResourceResponse {
     if (empty($webform_id)) {
@@ -91,7 +85,7 @@ class WebformAllFormSubmissions extends ResourceBase {
       return new ModifiedResourceResponse($errors, 400);
     }
 
-    // Webform access check.
+    // Attempt finding webform.
     $webform = $this->webformHelper->getWebform($webform_id);
 
     if (NULL === $webform) {
@@ -100,19 +94,20 @@ class WebformAllFormSubmissions extends ResourceBase {
           'message' => $this->t('Could not find webform with id :webform_id', [':webform_id' => $webform_id]),
         ],
       ];
+
       return new ModifiedResourceResponse($errors, 400);
     }
 
+    // Webform access check.
     if (!$this->webformHelper->hasWebformAccess($webform, $this->webformHelper->getCurrentUser())) {
       $errors = [
         'error' => [
           'message' => $this->t('Access denied'),
         ],
       ];
+
       return new ModifiedResourceResponse($errors, 401);
     }
-
-    $submissionData = [];
 
     $result = ['webform_id' => $webform_id];
 
@@ -134,6 +129,8 @@ class WebformAllFormSubmissions extends ResourceBase {
 
     $query->accessCheck(FALSE);
     $sids = $query->execute();
+
+    $submissionData = [];
 
     foreach ($sids as $sid) {
       /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
