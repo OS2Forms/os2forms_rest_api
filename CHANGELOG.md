@@ -9,6 +9,7 @@ about writing changes to this log.
 ## [Unreleased]
 
 - Added endpoint for getting all submissions on a webform.
+- **Updated** permissions such that users must be given access explicitly.
 
 ## [1.1.0]
 

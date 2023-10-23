@@ -15,25 +15,28 @@ vendor/bin/drush pm:enable os2forms_rest_api
 We use [Key auth](https://www.drupal.org/project/key_auth) for authenticating
 api users.
 
-A user can access the Webforrm REST API if
+A user can access the Webform REST API if
 
-1. it has the “OS2Form REST API user” (`os2forms_rest_api_user`) role and
-2. has a generated key (User > Edit > Key authentication; `/user/«user
+1. it has the “OS2Form REST API user” (`os2forms_rest_api_user`) role,
+2. has been granted access to the formular
+   (see [Custom access control](#custom-access-control) )
+3. has a generated key (User > Edit > Key authentication; `/user/«user
    id»/key-auth`).
 
-The “OS2Form REST API user” role gives read-only access to the API. To get read
+The “OS2Form REST API user” role gives read-only access to the API. To get write
 access, a user must also have the “OS2Form REST API user (write)”
 (`os2forms_rest_api_user_write`) role.
 
 ## Endpoints
 
-| Name               | Path                                           | Methods |
-|--------------------|------------------------------------------------|---------|
-| Webform Elements   | `/webform_rest/{webform_id}/elements`          | GET     |
-| Webform Fields     | `/webform_rest/{webform_id}/fields`            | GET     |
-| Webform Submission | `/webform_rest/{webform_id}/submission/{uuid}` | GET     |
-| Webform Submit     | `/webform_rest/submit`                         | POST    |
-| File               | `/entity/file/{file_id}`                       | GET     |
+| Name                | Path                                           | Methods |
+|---------------------|------------------------------------------------|---------|
+| Webform Elements    | `/webform_rest/{webform_id}/elements`          | GET     |
+| Webform Fields      | `/webform_rest/{webform_id}/fields`            | GET     |
+| Webform Submission  | `/webform_rest/{webform_id}/submission/{uuid}` | GET     |
+| Webform Submissions | `/webform_rest/{webform_id}/submissions`       | GET     |
+| Webform Submit      | `/webform_rest/submit`                         | POST    |
+| File                | `/entity/file/{file_id}`                       | GET     |
 
 ## Examples
 
@@ -125,14 +128,45 @@ Response:
 
 (the `sid` value is a webform submission uuid).
 
+### Webform submissions
+
+You can filter results based on submission time by
+adding query parameters to the url:
+
+| Name        | Value                | Example      |
+|-------------|----------------------|--------------|
+| `starttime` | PHP DateTime formats | `yesterday`  |
+| `endtime`   | PHP DateTime formats | `2023-10-23` |
+
+If left out, filtering upon the left out parameter will not be done.
+
+The example beneath requests all submissions after October 1. 2023.
+
+Request:
+
+```sh
+> curl --silent --header 'api-key: …' 'https://127.0.0.1:8000/webform_rest/some_webform_id/submissions?starttime=2023-10-01'
+```
+
+Response:
+
+```json
+{"webform_id":"some_webform_id",
+  "starttime":"2023-10-01",
+  "submissions":{
+    "123":"https:\/\/127.0.0.1:8000\/da\/webform_rest\/some_webform_id\/submission\/44b1fe1b-ee96-481e-b941-d1219d1dcb55",
+    "124":"https:\/\/127.0.0.1:8000\/da\/webform_rest\/some_webform_id\/submission\/3652836d-3dab-4919-b880-e82cbbf3c24c"
+  }
+}
+```
+
 ## Custom access control
 
-To limit access to webforms, you can specify a list of API users that are
+To give access to webforms, you need to specify a list of API users that are
 allowed to access a webform's data via the API.
 
 Go to Settings > General > Third party settings > OS2Forms > REST API to specify
-which users can access a webform's data. **If no users are specified, all API
-users can access the data.**
+which users can access a webform's data.
 
 ### Technical details
 
