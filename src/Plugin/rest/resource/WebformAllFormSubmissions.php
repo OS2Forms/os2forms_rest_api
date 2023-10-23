@@ -2,11 +2,16 @@
 
 namespace Drupal\os2forms_rest_api\Plugin\rest\resource;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Url;
+use Drupal\os2forms_rest_api\WebformHelper;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Creates a rest resource for retrieving webform submissions.
@@ -20,6 +25,14 @@ use Symfony\Component\HttpFoundation\Request;
  * )
  */
 class WebformAllFormSubmissions extends ResourceBase {
+  /**
+   * Allowed DateTime query parameters and their operation.
+   */
+  private const ALLOWED_DATETIME_QUERY_PARAMS = [
+    'starttime' => '>=',
+    'endtime' => '<=',
+  ];
+
   /**
    * The current request.
    *
@@ -50,20 +63,10 @@ class WebformAllFormSubmissions extends ResourceBase {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 
     $instance->entityTypeManager = $container->get('entity_type.manager');
-    $instance->setCurrentRequest($container->get('request_stack')->getCurrentRequest());
-    $instance->webformHelper = $container->get('Drupal\os2forms_rest_api\WebformHelper');
+    $instance->currentRequest = $container->get('request_stack')->getCurrentRequest();
+    $instance->webformHelper = $container->get(WebformHelper::class);
 
     return $instance;
-  }
-
-  /**
-   * Sets current request.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $currentRequest
-   *   The current request.
-   */
-  protected function setCurrentRequest(Request $currentRequest): void {
-    $this->currentRequest = $currentRequest;
   }
 
   /**
@@ -82,7 +85,7 @@ class WebformAllFormSubmissions extends ResourceBase {
           'message' => 'Webform ID is required.',
         ],
       ];
-      return new ModifiedResourceResponse($errors, 400);
+      return new ModifiedResourceResponse($errors, Response::HTTP_BAD_REQUEST);
     }
 
     // Attempt finding webform.
@@ -95,7 +98,7 @@ class WebformAllFormSubmissions extends ResourceBase {
         ],
       ];
 
-      return new ModifiedResourceResponse($errors, 400);
+      return new ModifiedResourceResponse($errors, Response::HTTP_NOT_FOUND);
     }
 
     // Webform access check.
@@ -106,53 +109,88 @@ class WebformAllFormSubmissions extends ResourceBase {
         ],
       ];
 
-      return new ModifiedResourceResponse($errors, 401);
+      return new ModifiedResourceResponse($errors, Response::HTTP_UNAUTHORIZED);
     }
 
     $result = ['webform_id' => $webform_id];
 
+    try {
+      $submissionEntityStorage = $this->entityTypeManager->getStorage('webform_submission');
+    }
+    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+      $errors = [
+        'error' => [
+          'message' => $this->t('Could not load webform submission storage'),
+        ],
+      ];
+
+      return new ModifiedResourceResponse($errors, Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
     // Query for webform submissions with this webform_id.
-    $query = $this->entityTypeManager->getStorage('webform_submission')->getQuery()
+    $submissionQuery = $submissionEntityStorage->getQuery()
       ->condition('webform_id', $webform_id);
 
-    $startTimestamp = $this->currentRequest->query->get('starttime');
-    if (is_numeric($startTimestamp)) {
-      $query->condition('created', $startTimestamp, '>=');
-      $result['starttime'] = $startTimestamp;
+    foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
+      $errors = $this->updateSubmissionQuery($this->currentRequest, $submissionQuery, $param, $operator, $result);
+
+      if (isset($errors['error'])) {
+        return new ModifiedResourceResponse($errors, Response::HTTP_BAD_REQUEST);
+      }
     }
 
-    $endTimestamp = $this->currentRequest->query->get('endtime');
-    if (is_numeric($endTimestamp)) {
-      $query->condition('created', $endTimestamp, '<=');
-      $result['endtime'] = $endTimestamp;
-    }
-
-    $query->accessCheck(FALSE);
-    $sids = $query->execute();
+    // Complete query.
+    $submissionQuery->accessCheck(FALSE);
+    $sids = $submissionQuery->execute();
 
     $submissionData = [];
 
-    foreach ($sids as $sid) {
-      /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
-      $webform_submission = $this->entityTypeManager->getStorage('webform_submission')->load($sid);
+    if (!empty($sids)) {
+      $submissions = $submissionEntityStorage->loadMultiple($sids);
 
-      $url = Url::fromRoute(
-            'rest.webform_rest_submission.GET',
-            [
-              'webform_id' => $webform_id,
-              'uuid' => $webform_submission->uuid(),
-            ],
-            [
-              'absolute' => TRUE,
-            ]
-        )->toString();
+      foreach ($submissions as $submission) {
+        $url = Url::fromRoute(
+          'rest.webform_rest_submission.GET',
+          [
+            'webform_id' => $webform_id,
+            'uuid' => $submission->uuid(),
+          ]
+        )
+          ->setAbsolute()
+          ->toString(TRUE)->getGeneratedUrl();
 
-      $submissionData[$sid] = $url;
+        $submissionData[$submission->id()] = $url;
+      }
     }
 
     $result['submissions'] = $submissionData;
 
     return new ModifiedResourceResponse($result);
+  }
+
+  /**
+   * Updates submission query with request query parameters.
+   */
+  private function updateSubmissionQuery(Request $request, QueryInterface $submissionQuery, string $parameter, string $operator, array &$result): array {
+    // Handle starttime request query.
+    $timeQuery = $request->query->get($parameter);
+
+    if (!empty($timeQuery)) {
+      try {
+        $startTime = new \DateTime($timeQuery);
+        $submissionQuery->condition('created', $startTime->getTimestamp(), $operator);
+        $result[$parameter] = $timeQuery;
+      }
+      catch (\Exception $e) {
+        $errors = [
+          'error' => [
+            'message' => $this->t('Could not generate DateTime from :time', [':time' => $timeQuery]),
+          ],
+        ];
+      }
+    }
+
+    return $errors ?? [];
   }
 
 }
