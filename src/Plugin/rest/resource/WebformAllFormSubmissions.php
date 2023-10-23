@@ -170,6 +170,9 @@ class WebformAllFormSubmissions extends ResourceBase {
 
   /**
    * Updates submission query with request query parameters.
+   *
+   * @phpstan-param array<string, mixed> $result
+   * @phpstan-return array<string, mixed>
    */
   private function updateSubmissionQuery(Request $request, QueryInterface $submissionQuery, string $parameter, string $operator, array &$result): array {
     // Handle starttime request query.
