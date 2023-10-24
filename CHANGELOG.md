@@ -10,7 +10,7 @@ about writing changes to this log.
 
 ## [2.0.1]
 
-- Updated install config with new list submissions endpoint
+- Updated module config with new list submissions endpoint
 
 ## [2.0.0]
 
