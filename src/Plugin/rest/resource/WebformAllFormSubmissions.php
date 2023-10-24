@@ -143,7 +143,7 @@ class WebformAllFormSubmissions extends ResourceBase {
         catch (\Exception $e) {
           $errors = [
             'error' => [
-              'message' => $this->t('Could not generate DateTime from :time', [':time' => $value]),
+              'message' => $this->t('Invalid :param: :value', [':param' => $param, ':value' => $value]),
             ],
           ];
 
