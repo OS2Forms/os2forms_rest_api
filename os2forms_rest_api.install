@@ -8,6 +8,6 @@
 /**
  * Installing webform submissions endpoint.
  */
-function os2forms_rest_api_update_9001() {
+function os2forms_rest_api_update_9001(): void {
   \Drupal::service('config.installer')->installDefaultConfig('module', 'os2forms_rest_api');
 }
