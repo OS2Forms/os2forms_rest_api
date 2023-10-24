@@ -18,7 +18,7 @@ api users.
 A user can access the Webform REST API if
 
 1. it has the “OS2Form REST API user” (`os2forms_rest_api_user`) role,
-2. has been granted access to the formular
+2. has been granted access to the form
    (see [Custom access control](#custom-access-control) )
 3. has a generated key (User > Edit > Key authentication; `/user/«user
    id»/key-auth`).
@@ -131,16 +131,16 @@ Response:
 ### Webform submissions
 
 You can filter results based on submission time by
-adding query parameters to the url:
+adding query parameters to the URL:
 
 | Name        | Value                | Example      |
 |-------------|----------------------|--------------|
-| `starttime` | PHP DateTime formats | `yesterday`  |
+| `starttime` | [PHP Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) | `yesterday`  |
 | `endtime`   | PHP DateTime formats | `2023-10-23` |
 
 If left out, filtering upon the left out parameter will not be done.
 
-The example beneath requests all submissions after October 1. 2023.
+This example requests all submissions after on or after October 1st, 2023:
 
 Request:
 
@@ -151,13 +151,14 @@ Request:
 Response:
 
 ```json
-{"webform_id":"some_webform_id",
-  "starttime":"2023-10-01",
-  "submissions":{
-    "123":"https:\/\/127.0.0.1:8000\/da\/webform_rest\/some_webform_id\/submission\/44b1fe1b-ee96-481e-b941-d1219d1dcb55",
-    "124":"https:\/\/127.0.0.1:8000\/da\/webform_rest\/some_webform_id\/submission\/3652836d-3dab-4919-b880-e82cbbf3c24c"
+{
+  "webform_id": "some_webform_id",
+  "starttime": "2023-10-01",
+  "submissions": {
+    "123": "https://127.0.0.1:8000/da/webform_rest/some_webform_id/submission/44b1fe1b-ee96-481e-b941-d1219d1dcb55",
+    "124": "https://127.0.0.1:8000/da/webform_rest/some_webform_id/submission/3652836d-3dab-4919-b880-e82cbbf3c24c"
   }
-}
+}```
 ```
 
 ## Custom access control

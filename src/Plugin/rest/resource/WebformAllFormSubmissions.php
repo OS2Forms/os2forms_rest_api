@@ -175,14 +175,13 @@ class WebformAllFormSubmissions extends ResourceBase {
    * @phpstan-return array<string, mixed>
    */
   private function updateSubmissionQuery(Request $request, QueryInterface $submissionQuery, string $parameter, string $operator, array &$result): array {
-    // Handle starttime request query.
-    $timeQuery = $request->query->get($parameter);
+    $value = $request->query->get($parameter);
 
     if (!empty($timeQuery)) {
       try {
-        $startTime = new \DateTime($timeQuery);
+        $startTime = new \DateTimeImmutable($timeQuery);
         $submissionQuery->condition('created', $startTime->getTimestamp(), $operator);
-        $result[$parameter] = $timeQuery;
+        $result[$parameter] = $timeQuery->format(\DateTimeImmutable::ATOM);
       }
       catch (\Exception $e) {
         $errors = [
