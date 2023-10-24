@@ -8,6 +8,12 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+## [2.0.1]
+
+- Updated module config with new list submissions endpoint
+
+## [2.0.0]
+
 - Added endpoint for getting all submissions on a webform.
 - **Updated** permissions such that users must be given access explicitly.
 
@@ -22,6 +28,8 @@ about writing changes to this log.
 
 - Release 1.0.0
 
-[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/1.1.0...HEAD
+[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/OS2Forms/os2forms_rest_api/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/OS2Forms/os2forms_rest_api/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/OS2Forms/os2forms_rest_api//releases/tag/1.0.0
