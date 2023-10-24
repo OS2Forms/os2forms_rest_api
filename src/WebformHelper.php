@@ -100,8 +100,10 @@ class WebformHelper {
     $routes = [
       'rest.webform_rest_elements.GET',
       'rest.webform_rest_fields.GET',
+      'rest.webform_rest_form_submissions.GET',
       'rest.webform_rest_submission.GET',
     ];
+
     $requireUuid = static function ($route) {
       return in_array(
         $route,
@@ -141,11 +143,11 @@ class WebformHelper {
       /** @var \Drupal\user\Entity\User $apiUser */
       $apiUser = $this->entityTypeManager->getStorage('user')->load($this->currentUser->id());
       // Don't show API data links if current user is not included in
-      // (non-empty) list of allowed users.
-      if (!empty($allowedUsers) && !isset($allowedUsers[$apiUser->id()])) {
+      // list of allowed users.
+      if (!isset($allowedUsers[$apiUser->id()])) {
         $apiUser = NULL;
       }
-      $apiKey = $apiUser ? $apiUser->api_key->value : NULL;
+      $apiKey = $apiUser?->api_key->value;
       if (!empty($apiKey)) {
         $form['third_party_settings']['os2forms']['os2forms_rest_api']['api_info']['endpoints_test'] = [
           '#type' => 'fieldset',
@@ -258,7 +260,7 @@ class WebformHelper {
 
     $allowedUsers = $this->getAllowedUsers($webform);
 
-    return empty($allowedUsers) || isset($allowedUsers[$userId]);
+    return isset($allowedUsers[$userId]);
   }
 
   /**
@@ -278,7 +280,7 @@ class WebformHelper {
    *
    * Note: This is only used to deny access to a file that is attached to a
    * webform (submission) that the user does not have permission to access.
-   * Permission to access private files are handles elsewhere.
+   * Permission to access private files are handled elsewhere.
    *
    * @phpstan-return int|array<string, string>|null
    */
@@ -305,6 +307,16 @@ class WebformHelper {
     // We cannot deny access to the file. Let others handle the access control
     // for the (private) file.
     return NULL;
+  }
+
+  /**
+   * Return current user.
+   *
+   * @return \Drupal\Core\Session\AccountProxyInterface
+   *   The current user.
+   */
+  public function getCurrentUser(): AccountProxyInterface {
+    return $this->currentUser;
   }
 
 }
