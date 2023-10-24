@@ -136,11 +136,11 @@ adding query parameters to the URL:
 | Name        | Value                | Example      |
 |-------------|----------------------|--------------|
 | `starttime` | [PHP Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) | `yesterday`  |
-| `endtime`   | PHP DateTime formats | `2023-10-23` |
+| `endtime`   | [PHP Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) | `2023-10-23` |
 
 If left out, filtering upon the left out parameter will not be done.
 
-This example requests all submissions after on or after October 1st, 2023:
+This example requests all submissions on or after October 1st, 2023:
 
 Request:
 
@@ -158,7 +158,7 @@ Response:
     "123": "https://127.0.0.1:8000/da/webform_rest/some_webform_id/submission/44b1fe1b-ee96-481e-b941-d1219d1dcb55",
     "124": "https://127.0.0.1:8000/da/webform_rest/some_webform_id/submission/3652836d-3dab-4919-b880-e82cbbf3c24c"
   }
-}```
+}
 ```
 
 ## Custom access control

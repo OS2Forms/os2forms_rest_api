@@ -4,13 +4,11 @@ namespace Drupal\os2forms_rest_api\Plugin\rest\resource;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Url;
 use Drupal\os2forms_rest_api\WebformHelper;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -131,11 +129,26 @@ class WebformAllFormSubmissions extends ResourceBase {
     $submissionQuery = $submissionEntityStorage->getQuery()
       ->condition('webform_id', $webform_id);
 
-    foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
-      $errors = $this->updateSubmissionQuery($this->currentRequest, $submissionQuery, $param, $operator, $result);
+    $requestQuery = $this->currentRequest->query;
 
-      if (isset($errors['error'])) {
-        return new ModifiedResourceResponse($errors, Response::HTTP_BAD_REQUEST);
+    foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
+      $value = $requestQuery->get($param);
+
+      if (!empty($value)) {
+        try {
+          $dateTime = new \DateTimeImmutable($value);
+          $submissionQuery->condition('created', $dateTime->getTimestamp(), $operator);
+          $result[$param] = $value;
+        }
+        catch (\Exception $e) {
+          $errors = [
+            'error' => [
+              'message' => $this->t('Could not generate DateTime from :time', [':time' => $value]),
+            ],
+          ];
+
+          return new ModifiedResourceResponse($errors, Response::HTTP_BAD_REQUEST);
+        }
       }
     }
 
@@ -143,13 +156,10 @@ class WebformAllFormSubmissions extends ResourceBase {
     $submissionQuery->accessCheck(FALSE);
     $sids = $submissionQuery->execute();
 
-    $submissionData = [];
-
-    if (!empty($sids)) {
-      $submissions = $submissionEntityStorage->loadMultiple($sids);
-
-      foreach ($submissions as $submission) {
-        $url = Url::fromRoute(
+    // Generate submission URLs.
+    try {
+      $result['submissions'] = array_map(
+        static fn($submission) => Url::fromRoute(
           'rest.webform_rest_submission.GET',
           [
             'webform_id' => $webform_id,
@@ -157,42 +167,21 @@ class WebformAllFormSubmissions extends ResourceBase {
           ]
         )
           ->setAbsolute()
-          ->toString(TRUE)->getGeneratedUrl();
-
-        $submissionData[$submission->id()] = $url;
-      }
+          ->toString(TRUE)->getGeneratedUrl(),
+        $submissionEntityStorage->loadMultiple($sids ?: [])
+      );
     }
+    catch (\Exception $e) {
+      $errors = [
+        'error' => [
+          'message' => $this->t('Could not generate submission URLs'),
+        ],
+      ];
 
-    $result['submissions'] = $submissionData;
+      return new ModifiedResourceResponse($errors, Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
 
     return new ModifiedResourceResponse($result);
-  }
-
-  /**
-   * Updates submission query with request query parameters.
-   *
-   * @phpstan-param array<string, mixed> $result
-   * @phpstan-return array<string, mixed>
-   */
-  private function updateSubmissionQuery(Request $request, QueryInterface $submissionQuery, string $parameter, string $operator, array &$result): array {
-    $value = $request->query->get($parameter);
-
-    if (!empty($timeQuery)) {
-      try {
-        $startTime = new \DateTimeImmutable($timeQuery);
-        $submissionQuery->condition('created', $startTime->getTimestamp(), $operator);
-        $result[$parameter] = $timeQuery->format(\DateTimeImmutable::ATOM);
-      }
-      catch (\Exception $e) {
-        $errors = [
-          'error' => [
-            'message' => $this->t('Could not generate DateTime from :time', [':time' => $timeQuery]),
-          ],
-        ];
-      }
-    }
-
-    return $errors ?? [];
   }
 
 }
