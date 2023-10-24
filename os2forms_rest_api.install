@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the OS2Forms REST API module.
+ */
+
+/**
+ * Installing webform submissions endpoint.
+ */
+function os2forms_rest_api_update_9001() {
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'os2forms_rest_api');
+}
