@@ -57,7 +57,7 @@ index 0000000..c378f45
 +  }
 +}
 diff --git a/src/Plugin/rest/resource/WebformSubmissionResource.php b/src/Plugin/rest/resource/WebformSubmissionResource.php
-index d2e08c5..a9cacf7 100644
+index ebe22aa..4102129 100644
 --- a/src/Plugin/rest/resource/WebformSubmissionResource.php
 +++ b/src/Plugin/rest/resource/WebformSubmissionResource.php
 @@ -5,6 +5,7 @@ namespace Drupal\webform_rest\Plugin\rest\resource;
@@ -67,11 +67,11 @@ index d2e08c5..a9cacf7 100644
 +use Drupal\webform_rest\Event\WebformSubmissionDataEvent;
  use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  use Symfony\Component\DependencyInjection\ContainerInterface;
- 
-@@ -35,6 +36,13 @@ class WebformSubmissionResource extends ResourceBase {
-    */
-   protected $request;
- 
+
+@@ -43,6 +44,13 @@ class WebformSubmissionResource extends ResourceBase {
+
+   protected $currentUser;
+
 +  /**
 +   * An event dispatcher instance to use for dispatching events.
 +   *
@@ -82,18 +82,18 @@ index d2e08c5..a9cacf7 100644
    /**
     * {@inheritdoc}
     */
-@@ -42,6 +50,7 @@ class WebformSubmissionResource extends ResourceBase {
-     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+@@ -51,6 +59,7 @@ class WebformSubmissionResource extends ResourceBase {
      $instance->entityTypeManager = $container->get('entity_type.manager');
      $instance->request = $container->get('request_stack');
+     $instance->currentUser = $container->get('current_user');
 +    $instance->eventDispatcher = $container->get('event_dispatcher');
      return $instance;
    }
- 
-@@ -91,9 +100,13 @@ class WebformSubmissionResource extends ResourceBase {
+
+@@ -110,9 +119,13 @@ class WebformSubmissionResource extends ResourceBase {
          // Grab submission data.
          $data = $webform_submission->getData();
- 
+
 +        // Dispatch WebformSubmissionDataEvent to allow modification of data.
 +        $event = new WebformSubmissionDataEvent($webform_submission, $data);
 +        $this->eventDispatcher->dispatch($event);
@@ -103,5 +103,5 @@ index d2e08c5..a9cacf7 100644
 -          'data' => $data,
 +          'data' => $event->getData(),
          ];
- 
+
          // Return the submission.

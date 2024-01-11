@@ -20,7 +20,8 @@
     "require": {
         "cweagans/composer-patches": "^1.7",
         "drupal/key_auth": "^2.0",
-        "drupal/webform_rest": "^4.0"
+        "drupal/webform_rest": "^4.1",
+        "os2forms/os2forms": "^3.13"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
@@ -51,7 +52,9 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "zaporylie/composer-drupal-optimizations": true,
+            "simplesamlphp/composer-module-installer": true
         }
     },
     "extra": {
