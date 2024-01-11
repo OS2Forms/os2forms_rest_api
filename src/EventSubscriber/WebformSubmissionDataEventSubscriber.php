@@ -4,6 +4,7 @@ namespace Drupal\os2forms_rest_api\EventSubscriber;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\file\FileInterface;
+use Drupal\os2forms_attachment\Element\AttachmentElement;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform_entity_print_attachment\Element\WebformEntityPrintAttachment;
@@ -143,6 +144,14 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
         $attachments[$key] = [
           'name' => $element['#title'] ?? $name,
           'type' => $type,
+          'url' => $url->toString(TRUE)->getGeneratedUrl(),
+        ];
+      }
+      elseif ('os2forms_attachment' === $element['#type']) {
+        $url = AttachmentElement::getFileUrl($element, $submission);
+        $attachments[$key] = [
+          'name' => $element['#title'] ?? $name,
+          'type' => $element['#export_type'] ?? '',
           'url' => $url->toString(TRUE)->getGeneratedUrl(),
         ];
       }

@@ -20,7 +20,8 @@
     "require": {
         "cweagans/composer-patches": "^1.7",
         "drupal/key_auth": "^2.0",
-        "drupal/webform_rest": "^4.0"
+        "drupal/webform_rest": "^4.1",
+        "os2forms/os2forms": "^3.13"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
@@ -51,14 +52,16 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "zaporylie/composer-drupal-optimizations": true,
+            "simplesamlphp/composer-module-installer": true
         }
     },
     "extra": {
         "enable-patching": true,
         "patches": {
             "drupal/webform_rest": {
-                "Added ability to modify response data sent from Webform Submission endpoint": "https://raw.githubusercontent.com/OS2Forms/os2forms_rest_api/1.1.0/patches/webform_rest_submission.patch"
+                "Added ability to modify response data sent from Webform Submission endpoint": "https://raw.githubusercontent.com/OS2Forms/os2forms_rest_api/2.0.2/patches/webform_rest_submission.patch"
             }
         }
     }

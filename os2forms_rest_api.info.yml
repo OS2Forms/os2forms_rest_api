@@ -7,3 +7,4 @@ dependencies:
   - drupal:key_auth
   - drupal:webform
   - drupal:webform_rest
+  - os2forms:os2forms_attachment

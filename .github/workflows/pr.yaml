@@ -123,6 +123,9 @@ jobs:
           composer --no-interaction --working-dir=drupal config repositories.drupal composer https://packages.drupal.org/8
 
           composer --no-interaction --working-dir=drupal config --no-plugins allow-plugins.cweagans/composer-patches true
+          composer --no-interaction --working-dir=drupal config --no-plugins allow-plugins.zaporylie/composer-drupal-optimizations true
+          composer --no-interaction --working-dir=drupal config --no-plugins allow-plugins.simplesamlphp/composer-module-installer true
+
           # @see https://getcomposer.org/doc/03-cli.md#modifying-extra-values
           composer --no-interaction --working-dir=drupal config --no-plugins --json extra.enable-patching true
 

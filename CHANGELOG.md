@@ -8,6 +8,10 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+## [2.0.2]
+
+- Added `OS2Forms Attachment` to attachments data.
+
 ## [2.0.1]
 
 - Updated module config with new list submissions endpoint
@@ -28,7 +32,8 @@ about writing changes to this log.
 
 - Release 1.0.0
 
-[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.2...HEAD
+[2.0.2]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/OS2Forms/os2forms_rest_api/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/OS2Forms/os2forms_rest_api/compare/1.0.0...1.1.0
