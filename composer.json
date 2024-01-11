@@ -61,7 +61,7 @@
         "enable-patching": true,
         "patches": {
             "drupal/webform_rest": {
-                "Added ability to modify response data sent from Webform Submission endpoint": "patches/webform_rest_submission.patch"
+                "Added ability to modify response data sent from Webform Submission endpoint": "https://gist.githubusercontent.com/jekuaitk/460cdbfee02ba03b651ad07ba7aa6de6/raw/4639528abd66dcd5c538d86a21a99c352c0e8183/webform_rest_submission.patch"
             }
         }
     }
