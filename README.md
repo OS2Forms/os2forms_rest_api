@@ -166,7 +166,7 @@ Response:
 To give access to webforms, you need to specify a list of API users that are
 allowed to access a webform's data via the API.
 
-Go to Settings > General > Third party settings > OS2Forms > REST API to specify
+Go to Settings > Access > View any submissions > Users to specify
 which users can access a webform's data.
 
 ### Technical details
