@@ -241,8 +241,9 @@ class WebformHelper {
   /**
    * Check if a user has access to a webform.
    *
-   * A user has access to a webform if the list of allowed users is empty or the
-   * user is included in the list.
+   * A user has access to a webform if the user is
+   * contained in the list of allowed users or the
+   * user has been granted the 'view_any' webform permission.
    *
    * @param \Drupal\webform\WebformInterface $webform
    *   The webform.
@@ -260,7 +261,7 @@ class WebformHelper {
 
     $allowedUsers = $this->getAllowedUsers($webform);
 
-    return isset($allowedUsers[$userId]);
+    return isset($allowedUsers[$userId]) || $webform->access('view_any');
   }
 
   /**
@@ -273,40 +274,6 @@ class WebformHelper {
     return $this->entityTypeManager
       ->getStorage('user')
       ->loadMultiple(array_column($spec, 'target_id'));
-  }
-
-  /**
-   * Implements hook_file_download().
-   *
-   * Note: This is only used to deny access to a file that is attached to a
-   * webform (submission) that the user does not have permission to access.
-   * Permission to access private files are handled elsewhere.
-   *
-   * @phpstan-return int|array<string, string>|null
-   */
-  public function fileDownload(string $uri) {
-    $request = $this->requestStack->getCurrentRequest();
-
-    // We are only concerned with users authenticated via Key Auth (cf.
-    // os2forms_rest_api.services.yml).
-    if ($user = $this->keyAuth->authenticate($request)) {
-      // Find webform id from uri, see example uri.
-      // @Example: private://webform/some_webform_id/119/some_file_name.png
-      $pattern = '/private:\/\/webform\/(?<webform>[^\/]*)/';
-      if (preg_match($pattern, $uri, $matches)) {
-        $webform = $this->getWebform($matches['webform']);
-        if (NULL !== $webform) {
-          // Deny access to file if user does not have access to the webform.
-          if (!$this->hasWebformAccess($webform, $user)) {
-            return -1;
-          }
-        }
-      }
-    }
-
-    // We cannot deny access to the file. Let others handle the access control
-    // for the (private) file.
-    return NULL;
   }
 
   /**
