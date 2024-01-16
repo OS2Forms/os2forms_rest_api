@@ -8,10 +8,8 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\key_auth\Authentication\Provider\KeyAuth;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Webform helper for helping with webforms.
@@ -34,27 +32,11 @@ class WebformHelper {
   private AccountProxyInterface $currentUser;
 
   /**
-   * The key authentication service.
-   *
-   * @var \Drupal\key_auth\Authentication\Provider\KeyAuth
-   */
-  private KeyAuth $keyAuth;
-
-  /**
-   * The request stack.
-   *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
-   */
-  private RequestStack $requestStack;
-
-  /**
    * Constructor.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, AccountProxyInterface $currentUser, KeyAuth $keyAuth, RequestStack $requestStack) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, AccountProxyInterface $currentUser) {
     $this->entityTypeManager = $entityTypeManager;
     $this->currentUser = $currentUser;
-    $this->keyAuth = $keyAuth;
-    $this->requestStack = $requestStack;
   }
 
   /**
