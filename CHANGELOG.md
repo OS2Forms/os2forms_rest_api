@@ -8,6 +8,10 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+## [2.1.0]
+
+- Drupal 10 compatibility.
+
 ## [2.0.3]
 
 - Gave users with `view_any` submission permission access to API.
@@ -36,7 +40,8 @@ about writing changes to this log.
 
 - Release 1.0.0
 
-[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.3...HEAD
+[Unreleased]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.3...2.1.0
 [2.0.3]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/OS2Forms/os2forms_rest_api/compare/2.0.0...2.0.1
