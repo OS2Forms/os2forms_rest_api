@@ -2,8 +2,6 @@
 
 namespace Drupal\os2forms_rest_api\Plugin\rest\resource;
 
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Url;
 use Drupal\os2forms_rest_api\WebformHelper;
 use Drupal\rest\ModifiedResourceResponse;
