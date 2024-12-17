@@ -54,7 +54,8 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
             "zaporylie/composer-drupal-optimizations": true,
-            "simplesamlphp/composer-module-installer": true
+            "simplesamlphp/composer-module-installer": true,
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {
