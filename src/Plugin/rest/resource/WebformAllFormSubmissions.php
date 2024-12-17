@@ -53,6 +53,13 @@ class WebformAllFormSubmissions extends ResourceBase {
   private $webformHelper;
 
   /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  private $database;
+
+  /**
    * {@inheritdoc}
    *
    * @phpstan-param array<string, mixed> $configuration
@@ -63,6 +70,7 @@ class WebformAllFormSubmissions extends ResourceBase {
     $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->currentRequest = $container->get('request_stack')->getCurrentRequest();
     $instance->webformHelper = $container->get(WebformHelper::class);
+    $instance->database = $container->get('database');
 
     return $instance;
   }
@@ -112,24 +120,9 @@ class WebformAllFormSubmissions extends ResourceBase {
 
     $result = ['webform_id' => $webform_id];
 
-    try {
-      $submissionEntityStorage = $this->entityTypeManager->getStorage('webform_submission');
-    }
-    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-      $errors = [
-        'error' => [
-          'message' => $this->t('Could not load webform submission storage'),
-        ],
-      ];
-
-      return new ModifiedResourceResponse($errors, Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
-
-    // Query for webform submissions with this webform_id.
-    $submissionQuery = $submissionEntityStorage->getQuery()
-      ->condition('webform_id', $webform_id);
-
     $requestQuery = $this->currentRequest->query;
+
+    $query = 'SELECT sid, uuid FROM webform_submission WHERE webform_id = :webform_id';
 
     foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
       $value = $requestQuery->get($param);
@@ -137,7 +130,7 @@ class WebformAllFormSubmissions extends ResourceBase {
       if (!empty($value)) {
         try {
           $dateTime = new \DateTimeImmutable($value);
-          $submissionQuery->condition('created', $dateTime->getTimestamp(), $operator);
+          $query .= sprintf(' AND created %s %s', $operator, $dateTime->getTimestamp());
           $result[$param] = $value;
         }
         catch (\Exception $e) {
@@ -152,9 +145,10 @@ class WebformAllFormSubmissions extends ResourceBase {
       }
     }
 
-    // Complete query.
-    $submissionQuery->accessCheck(FALSE);
-    $sids = $submissionQuery->execute();
+    $submissions = $this->database->query(
+      $query,
+      [':webform_id' => $webform_id]
+    )->fetchAllKeyed();
 
     // Generate submission URLs.
     try {
@@ -163,12 +157,12 @@ class WebformAllFormSubmissions extends ResourceBase {
           'rest.webform_rest_submission.GET',
           [
             'webform_id' => $webform_id,
-            'uuid' => $submission->uuid(),
+            'uuid' => $submission,
           ]
         )
           ->setAbsolute()
           ->toString(TRUE)->getGeneratedUrl(),
-        $submissionEntityStorage->loadMultiple($sids ?: [])
+        $submissions ?: []
       );
     }
     catch (\Exception $e) {
