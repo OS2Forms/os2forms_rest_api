@@ -37,13 +37,6 @@ class WebformAllFormSubmissions extends ResourceBase {
   private $currentRequest;
 
   /**
-   * The entity type manager object.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManager
-   */
-  private $entityTypeManager;
-
-  /**
    * The webform helper.
    *
    * @var \Drupal\os2forms_rest_api\WebformHelper
@@ -65,7 +58,6 @@ class WebformAllFormSubmissions extends ResourceBase {
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 
-    $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->currentRequest = $container->get('request_stack')->getCurrentRequest();
     $instance->webformHelper = $container->get(WebformHelper::class);
     $instance->database = $container->get('database');
