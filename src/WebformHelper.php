@@ -179,7 +179,7 @@ class WebformHelper {
    * @return \Drupal\webform\WebformInterface|null
    *   The webform if found.
    */
-  public function getWebform(string $webformId, string $submissionUuid = NULL): ?WebformInterface {
+  public function getWebform(string $webformId, ?string $submissionUuid = NULL): ?WebformInterface {
     if (NULL !== $submissionUuid) {
       $storage = $this->entityTypeManager->getStorage('webform_submission');
       $submissionIds = $storage

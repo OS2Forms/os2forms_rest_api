@@ -26,7 +26,8 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "drupal/coder": "^8.3",
-        "mglaman/drupal-check": "^1.4"
+        "mglaman/drupal-check": "^1.4",
+        "mglaman/phpstan-drupal": "~1.2.0"
     },
     "scripts": {
         "code-analysis/drupal-check": [
@@ -54,7 +55,8 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "cweagans/composer-patches": true,
             "zaporylie/composer-drupal-optimizations": true,
-            "simplesamlphp/composer-module-installer": true
+            "simplesamlphp/composer-module-installer": true,
+            "mglaman/composer-drupal-lenient": true
         }
     },
     "extra": {

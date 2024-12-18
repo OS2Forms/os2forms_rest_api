@@ -2,8 +2,6 @@
 
 namespace Drupal\os2forms_rest_api\Plugin\rest\resource;
 
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Url;
 use Drupal\os2forms_rest_api\WebformHelper;
 use Drupal\rest\ModifiedResourceResponse;
@@ -39,18 +37,18 @@ class WebformAllFormSubmissions extends ResourceBase {
   private $currentRequest;
 
   /**
-   * The entity type manager object.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManager
-   */
-  private $entityTypeManager;
-
-  /**
    * The webform helper.
    *
    * @var \Drupal\os2forms_rest_api\WebformHelper
    */
   private $webformHelper;
+
+  /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  private $database;
 
   /**
    * {@inheritdoc}
@@ -60,9 +58,9 @@ class WebformAllFormSubmissions extends ResourceBase {
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 
-    $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->currentRequest = $container->get('request_stack')->getCurrentRequest();
     $instance->webformHelper = $container->get(WebformHelper::class);
+    $instance->database = $container->get('database');
 
     return $instance;
   }
@@ -112,24 +110,12 @@ class WebformAllFormSubmissions extends ResourceBase {
 
     $result = ['webform_id' => $webform_id];
 
-    try {
-      $submissionEntityStorage = $this->entityTypeManager->getStorage('webform_submission');
-    }
-    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-      $errors = [
-        'error' => [
-          'message' => $this->t('Could not load webform submission storage'),
-        ],
-      ];
-
-      return new ModifiedResourceResponse($errors, Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
-
-    // Query for webform submissions with this webform_id.
-    $submissionQuery = $submissionEntityStorage->getQuery()
-      ->condition('webform_id', $webform_id);
-
     $requestQuery = $this->currentRequest->query;
+
+    // We use raw SQL to fetch submission sids and uuids.
+    // This is to avoid degraded performance by having to load every
+    // single submission through the webform submissions storage.
+    $query = 'SELECT sid, uuid FROM webform_submission WHERE webform_id = :webform_id';
 
     foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
       $value = $requestQuery->get($param);
@@ -137,7 +123,7 @@ class WebformAllFormSubmissions extends ResourceBase {
       if (!empty($value)) {
         try {
           $dateTime = new \DateTimeImmutable($value);
-          $submissionQuery->condition('created', $dateTime->getTimestamp(), $operator);
+          $query .= sprintf(' AND created %s %s', $operator, $dateTime->getTimestamp());
           $result[$param] = $value;
         }
         catch (\Exception $e) {
@@ -152,9 +138,10 @@ class WebformAllFormSubmissions extends ResourceBase {
       }
     }
 
-    // Complete query.
-    $submissionQuery->accessCheck(FALSE);
-    $sids = $submissionQuery->execute();
+    $submissions = $this->database->query(
+      $query,
+      [':webform_id' => $webform_id]
+    )->fetchAllKeyed();
 
     // Generate submission URLs.
     try {
@@ -163,12 +150,12 @@ class WebformAllFormSubmissions extends ResourceBase {
           'rest.webform_rest_submission.GET',
           [
             'webform_id' => $webform_id,
-            'uuid' => $submission->uuid(),
+            'uuid' => $submission,
           ]
         )
           ->setAbsolute()
           ->toString(TRUE)->getGeneratedUrl(),
-        $submissionEntityStorage->loadMultiple($sids ?: [])
+        $submissions ?: []
       );
     }
     catch (\Exception $e) {
