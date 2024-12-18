@@ -112,6 +112,9 @@ class WebformAllFormSubmissions extends ResourceBase {
 
     $requestQuery = $this->currentRequest->query;
 
+    // We use raw SQL to fetch submission sids and uuids.
+    // This is to avoid degraded performance by having to load every
+    // single submission through the webform submissions storage.
     $query = 'SELECT sid, uuid FROM webform_submission WHERE webform_id = :webform_id';
 
     foreach (self::ALLOWED_DATETIME_QUERY_PARAMS as $param => $operator) {
