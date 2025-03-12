@@ -21,7 +21,7 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/key_auth": "^2.0",
         "drupal/webform_rest": "^4.1",
-        "os2forms/os2forms": "^3.13"
+        "os2forms/os2forms": "^3.13 || ^4.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
