@@ -8,6 +8,11 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+## [2.3.0]
+
+* Allowed `os2forms/os2forms` `5.x`.
+* Disallowed `os2forms/os2forms` `3.x`.
+
 ## [2.2.1]
 
 - Allowed `os2forms/os2forms` 4.0.
