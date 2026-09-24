@@ -8,6 +8,9 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+* Upgraded to `"drupal/webform_rest": "^4.2"`
+* Upgraded linked data patch accordingly.
+
 ## [2.3.0]
 
 * Allowed `os2forms/os2forms` `5.x`.

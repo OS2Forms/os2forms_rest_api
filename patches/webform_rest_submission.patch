@@ -1,6 +1,6 @@
 diff --git a/src/Event/WebformSubmissionDataEvent.php b/src/Event/WebformSubmissionDataEvent.php
 new file mode 100644
-index 0000000..c378f45
+index 0000000..321018d
 --- /dev/null
 +++ b/src/Event/WebformSubmissionDataEvent.php
 @@ -0,0 +1,52 @@
@@ -42,34 +42,34 @@ index 0000000..c378f45
 +   */
 +  public function getWebformSubmission(): WebformSubmissionInterface
 +  {
-+        return $this->webformSubmission;
++    return $this->webformSubmission;
 +  }
 +
 +  public function getData(): array
 +  {
-+          return $this->data;
++    return $this->data;
 +  }
 +
 +  public function setData(array $data)
 +  {
-+        $this->data = $data;
-+        return $this;
++    $this->data = $data;
++    return $this;
 +  }
 +}
 diff --git a/src/Plugin/rest/resource/WebformSubmissionResource.php b/src/Plugin/rest/resource/WebformSubmissionResource.php
-index ebe22aa..4102129 100644
+index 651bb26..afadf99 100644
 --- a/src/Plugin/rest/resource/WebformSubmissionResource.php
 +++ b/src/Plugin/rest/resource/WebformSubmissionResource.php
 @@ -5,6 +5,7 @@ namespace Drupal\webform_rest\Plugin\rest\resource;
- use Drupal\webform\WebformSubmissionForm;
- use Drupal\rest\Plugin\ResourceBase;
  use Drupal\rest\ModifiedResourceResponse;
+ use Drupal\rest\Plugin\ResourceBase;
+ use Drupal\rest\ResourceResponse;
 +use Drupal\webform_rest\Event\WebformSubmissionDataEvent;
- use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+ use Drupal\webform\WebformSubmissionForm;
  use Symfony\Component\DependencyInjection\ContainerInterface;
-
+ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 @@ -43,6 +44,13 @@ class WebformSubmissionResource extends ResourceBase {
-
+    */
    protected $currentUser;
 
 +  /**
