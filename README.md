@@ -133,8 +133,8 @@ Response:
 You can filter results based on submission time by
 adding query parameters to the URL:
 
-| Name        | Value                | Example      |
-|-------------|----------------------|--------------|
+| Name        | Value                                                                           | Example      |
+|-------------|---------------------------------------------------------------------------------|--------------|
 | `starttime` | [PHP Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) | `yesterday`  |
 | `endtime`   | [PHP Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) | `2023-10-23` |
 

@@ -1,20 +1,12 @@
 {
     "name": "os2forms/os2forms_rest_api",
     "description": "OS2Forms REST API",
-    "type": "drupal-module",
     "license": "MIT",
+    "type": "drupal-module",
     "authors": [
         {
             "name": "Mikkel Ricky",
             "email": "rimi@aarhus.dk"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
         }
     ],
     "require": {
@@ -26,45 +18,61 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2",
         "mglaman/drupal-check": "^1.4",
         "mglaman/phpstan-drupal": "~1.2.0"
     },
-    "scripts": {
-        "code-analysis/drupal-check": [
-            "vendor/bin/drupal-check --deprecations --analysis --exclude-dir=vendor *.* src"
-        ],
-        "code-analysis": [
-            "@code-analysis/drupal-check"
-        ],
-        "coding-standards-check/phpcs": [
-            "vendor/bin/phpcs --standard=phpcs.xml.dist"
-        ],
-        "coding-standards-check": [
-            "@coding-standards-check/phpcs"
-        ],
-        "coding-standards-apply/phpcs": [
-            "vendor/bin/phpcbf --standard=phpcs.xml.dist"
-        ],
-        "coding-standards-apply": [
-            "@coding-standards-apply/phpcs"
-        ]
-    },
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true,
-            "zaporylie/composer-drupal-optimizations": true,
-            "simplesamlphp/composer-module-installer": true,
-            "mglaman/composer-drupal-lenient": true
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
         }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "mglaman/composer-drupal-lenient": true,
+            "simplesamlphp/composer-module-installer": true,
+            "simplesamlphp/composer-xmlprovider-installer": true,
+            "zaporylie/composer-drupal-optimizations": true
+        },
+        "sort-packages": true
     },
     "extra": {
+        "drupal-lenient": {
+            "allowed-list": [
+                "drupal/webform_node_element"
+            ]
+        },
         "enable-patching": true,
         "patches": {
             "drupal/webform_rest": {
                 "Added ability to modify response data sent from Webform Submission endpoint": "https://raw.githubusercontent.com/OS2Forms/os2forms_rest_api/feature/upgrade-webform-rest-version/patches/webform_rest_submission.patch"
             }
         }
+    },
+    "scripts": {
+        "code-analysis": [
+            "@code-analysis/drupal-check"
+        ],
+        "code-analysis/drupal-check": [
+            "vendor/bin/drupal-check --deprecations --analysis --exclude-dir=vendor *.* src"
+        ],
+        "coding-standards-apply": [
+            "@coding-standards-apply/phpcs"
+        ],
+        "coding-standards-apply/phpcs": [
+            "vendor/bin/phpcbf --standard=phpcs.xml.dist"
+        ],
+        "coding-standards-check": [
+            "@coding-standards-check/phpcs"
+        ],
+        "coding-standards-check/phpcs": [
+            "vendor/bin/phpcs --standard=phpcs.xml.dist"
+        ]
     }
 }
