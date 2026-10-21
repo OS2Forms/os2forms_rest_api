@@ -1,32 +1,37 @@
 services:
   logger.channel.os2forms_rest_api:
     parent: logger.channel_base
-    arguments: [ 'os2forms_rest_api' ]
+    arguments: ["os2forms_rest_api"]
 
   Drupal\os2forms_rest_api\WebformHelper:
     arguments:
-      - '@entity_type.manager'
-      - '@current_user'
+      - "@entity_type.manager"
+      - "@current_user"
 
   Drupal\os2forms_rest_api\EventSubscriber\WebformAccessEventSubscriber:
     arguments:
-      - '@current_route_match'
-      - '@current_user'
+      - "@current_route_match"
+      - "@current_user"
       - '@Drupal\os2forms_rest_api\WebformHelper'
     tags:
-      - { name: 'event_subscriber' }
+      - { name: "event_subscriber" }
 
   Drupal\os2forms_rest_api\EventSubscriber\WebformSubmissionDataEventSubscriber:
     arguments:
-      - '@entity_type.manager'
-      - '@logger.channel.os2forms_rest_api'
+      - "@entity_type.manager"
+      - "@logger.channel.os2forms_rest_api"
     tags:
-      - { name: 'event_subscriber' }
+      - { name: "event_subscriber" }
 
   # Overwrite, adding global tag
   # @see https://www.drupal.org/docs/drupal-apis/services-and-dependency-injection/altering-existing-services-providing-dynamic-services
   key_auth.authentication.key_auth:
     class: Drupal\key_auth\Authentication\Provider\KeyAuth
-    arguments: [ '@key_auth' ]
+    arguments: ["@key_auth"]
     tags:
-      - { name: authentication_provider, provider_id: 'key_auth', priority: 200, global: true }
+      - {
+          name: authentication_provider,
+          provider_id: "key_auth",
+          priority: 200,
+          global: true,
+        }

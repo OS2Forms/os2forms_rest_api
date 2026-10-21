@@ -9,7 +9,6 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\webform\WebformInterface;
-use Drupal\webform\WebformSubmissionInterface;
 
 /**
  * Webform helper for helping with webforms.
@@ -18,25 +17,19 @@ class WebformHelper {
   use StringTranslationTrait;
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  private EntityTypeManagerInterface $entityTypeManager;
-
-  /**
-   * The current user manager.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
-   */
-  private AccountProxyInterface $currentUser;
-
-  /**
    * Constructor.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, AccountProxyInterface $currentUser) {
-    $this->entityTypeManager = $entityTypeManager;
-    $this->currentUser = $currentUser;
+  public function __construct(
+      /**
+       * The entity type manager.
+       */
+      private EntityTypeManagerInterface $entityTypeManager,
+      /**
+       * The current user manager.
+       */
+      private AccountProxyInterface $currentUser
+  )
+  {
   }
 
   /**
@@ -86,26 +79,22 @@ class WebformHelper {
       'rest.webform_rest_submission.GET',
     ];
 
-    $requireUuid = static function ($route) {
-      return in_array(
-        $route,
-        [
-          'rest.webform_rest_submission.GET',
-          'rest.webform_rest_submission.PATCH',
-        ],
-        TRUE
-      );
-    };
+    $requireUuid = (static fn($route) => in_array(
+      $route,
+      [
+        'rest.webform_rest_submission.GET',
+        'rest.webform_rest_submission.PATCH',
+      ],
+      TRUE
+    ));
 
     $form['third_party_settings']['os2forms']['os2forms_rest_api']['api_info']['endpoints']['links']['#prefix'] = '<ol>';
     $form['third_party_settings']['os2forms']['os2forms_rest_api']['api_info']['endpoints']['links']['#suffix'] = '</ol>';
 
     foreach ($routes as $route) {
-      $parameters = [];
-
-      if ('rest.webform_rest_submit.POST' !== $route) {
-        $parameters['webform_id'] = $webform->id();
-      }
+      $parameters = [
+        'webform_id' => $webform->id(),
+      ];
       $uuidPlaceholder = '{uuid}';
       if ($requireUuid($route)) {
         $parameters['uuid'] = $uuidPlaceholder;
@@ -146,11 +135,9 @@ class WebformHelper {
         $form['third_party_settings']['os2forms']['os2forms_rest_api']['api_info']['endpoints_test']['links']['#suffix'] = '</ol>';
 
         foreach ($routes as $route) {
-          $parameters = [];
-
-          if ('rest.webform_rest_submit.POST' !== $route) {
-            $parameters['webform_id'] = $webform->id();
-          }
+          $parameters = [
+            'webform_id' => $webform->id(),
+          ];
           $uuidPlaceholder = '{uuid}';
           if ($requireUuid($route)) {
             $parameters['uuid'] = $uuidPlaceholder;
@@ -193,7 +180,6 @@ class WebformHelper {
         return NULL;
       }
 
-      assert($submission instanceof WebformSubmissionInterface);
       $webform = $submission->getWebform();
       if ($webformId !== $webform->id()) {
         return NULL;
@@ -239,7 +225,6 @@ class WebformHelper {
     // AccountInterface::id() should return an `int` but actually returns a
     // `string`.
     $userId = (int) ($user instanceof AccountInterface ? $user->id() : $user);
-    assert(is_int($userId));
 
     $allowedUsers = $this->getAllowedUsers($webform);
 

@@ -8,6 +8,8 @@ about writing changes to this log.
 
 ## [Unreleased]
 
+* Drupal 11 compatibility.
+
 ## [2.4.0]
 
 * Upgraded to `"drupal/webform_rest": "^4.2"`

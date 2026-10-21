@@ -16,33 +16,23 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class WebformAccessEventSubscriber implements EventSubscriberInterface {
   /**
-   * The route match.
-   *
-   * @var \Drupal\Core\Routing\RouteMatchInterface
-   */
-  private RouteMatchInterface $routeMatch;
-
-  /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
-   */
-  private AccountProxyInterface $currentUser;
-
-  /**
-   * The webform helper.
-   *
-   * @var \Drupal\os2forms_rest_api\WebformHelper
-   */
-  private WebformHelper $webformHelper;
-
-  /**
    * Constructor.
    */
-  public function __construct(RouteMatchInterface $routeMatch, AccountProxyInterface $currentUser, WebformHelper $webformHelper) {
-    $this->routeMatch = $routeMatch;
-    $this->currentUser = $currentUser;
-    $this->webformHelper = $webformHelper;
+  public function __construct(
+      /**
+       * The route match.
+       */
+      private readonly RouteMatchInterface $routeMatch,
+      /**
+       * The current user.
+       */
+      private readonly AccountProxyInterface $currentUser,
+      /**
+       * The webform helper.
+       */
+      private readonly WebformHelper $webformHelper
+  )
+  {
   }
 
   /**
@@ -81,7 +71,7 @@ class WebformAccessEventSubscriber implements EventSubscriberInterface {
           $submissionUuid = (string) $content['submission_uuid'];
         }
       }
-      catch (\JsonException $exception) {
+      catch (\JsonException) {
         // Invalid JSON body. We cannot get webform id from request body.
       }
     }

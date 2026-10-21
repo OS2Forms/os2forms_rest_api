@@ -20,16 +20,9 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
   use LoggerAwareTrait;
 
   /**
-   * Entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  private EntityTypeManagerInterface $entityTypeManager;
-
-  /**
    * Map from entity type to webform element types.
    */
-  private const LINKED_ELEMENT_TYPES = [
+  private const array LINKED_ELEMENT_TYPES = [
     'file' => [
       'webform_image_file',
       'webform_document_file',
@@ -42,8 +35,10 @@ class WebformSubmissionDataEventSubscriber implements EventSubscriberInterface {
   /**
    * Constructor.
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, LoggerInterface $logger) {
-    $this->entityTypeManager = $entityTypeManager;
+  public function __construct(/**
+   * Entity type manager.
+   */
+  private EntityTypeManagerInterface $entityTypeManager, LoggerInterface $logger) {
     $this->setLogger($logger);
   }
 
