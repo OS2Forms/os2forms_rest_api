@@ -233,7 +233,6 @@ Webform REST module and implement an event subscriber,
 [WebformSubmissionDataEventSubscriber](src/EventSubscriber/WebformSubmissionDataEventSubscriber.php),
 to add the linked data.
 
-
 ## Development
 
 We use [DDEV Drupal Contrib](https://github.com/ddev/ddev-drupal-contrib) for development[^1].
