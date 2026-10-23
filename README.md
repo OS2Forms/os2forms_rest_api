@@ -232,3 +232,29 @@ In order to add linked data, we apply a patch,
 Webform REST module and implement an event subscriber,
 [WebformSubmissionDataEventSubscriber](src/EventSubscriber/WebformSubmissionDataEventSubscriber.php),
 to add the linked data.
+
+## Development
+
+We use [DDEV Drupal Contrib](https://github.com/ddev/ddev-drupal-contrib) for development[^1].
+
+[^1]: The DDEV environment has been created by running
+
+      ```shell
+      ddev config --project-type=drupal11 --docroot=Drupal
+      ddev add-on get ddev/ddev-drupal-contrib
+      ddev start
+      ddev poser --no-interaction
+      ddev symlink-project
+      # Detect expected Drupal and PHP versions.
+      ddev config --update
+      ```
+
+      (cf. <https://github.com/ddev/ddev-drupal-contrib#install>)
+
+Start the show by running
+
+```shell
+task ddev:start
+```
+
+Run `task` to see other useful development tasks.

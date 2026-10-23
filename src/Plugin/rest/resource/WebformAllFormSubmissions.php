@@ -24,7 +24,7 @@ class WebformAllFormSubmissions extends ResourceBase {
   /**
    * Allowed DateTime query parameters and their operation.
    */
-  private const ALLOWED_DATETIME_QUERY_PARAMS = [
+  private const array ALLOWED_DATETIME_QUERY_PARAMS = [
     'starttime' => '>=',
     'endtime' => '<=',
   ];
@@ -34,21 +34,21 @@ class WebformAllFormSubmissions extends ResourceBase {
    *
    * @var \Symfony\Component\HttpFoundation\Request
    */
-  private $currentRequest;
+  protected $currentRequest;
 
   /**
    * The webform helper.
    *
    * @var \Drupal\os2forms_rest_api\WebformHelper
    */
-  private $webformHelper;
+  protected $webformHelper;
 
   /**
    * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */
-  private $database;
+  protected $database;
 
   /**
    * {@inheritdoc}
@@ -126,7 +126,7 @@ class WebformAllFormSubmissions extends ResourceBase {
           $query .= sprintf(' AND created %s %s', $operator, $dateTime->getTimestamp());
           $result[$param] = $value;
         }
-        catch (\Exception $e) {
+        catch (\Exception) {
           $errors = [
             'error' => [
               'message' => $this->t('Invalid :param: :value', [':param' => $param, ':value' => $value]),
@@ -158,7 +158,7 @@ class WebformAllFormSubmissions extends ResourceBase {
         $submissions ?: []
       );
     }
-    catch (\Exception $e) {
+    catch (\Exception) {
       $errors = [
         'error' => [
           'message' => $this->t('Could not generate submission URLs'),
