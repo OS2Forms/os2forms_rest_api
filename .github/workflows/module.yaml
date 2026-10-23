@@ -28,6 +28,11 @@ jobs:
         # https://github.com/ddev/ddev-drupal-contrib
         run: |
           ddev start
+          # We still need drupal lenient.
+          ddev exec -- COMPOSER=composer.lenient.json composer init --no-interaction
+          ddev exec -- COMPOSER=composer.lenient.json composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
+          ddev exec -- COMPOSER=composer.lenient.json composer require mglaman/composer-drupal-lenient:^1.0
+          rm -f composer.lenient.*
           ddev poser --no-interaction --no-security-blocking
           ddev symlink-project
 
