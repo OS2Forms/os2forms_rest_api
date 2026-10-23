@@ -1,8 +1,8 @@
 /vendor/
 composer.lock
-/.editorconfig
 /.gitattributes
 
 # DDEV stuff
 /web/
 /recipes/
+/.editorconfig

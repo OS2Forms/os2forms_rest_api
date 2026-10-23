@@ -59,25 +59,5 @@
                 "Added ability to modify response data sent from Webform Submission endpoint": "https://raw.githubusercontent.com/OS2Forms/os2forms_rest_api/2.4.0/patches/webform_rest_submission.patch"
             }
         }
-    },
-    "scripts": {
-        "code-analysis": [
-            "@code-analysis/drupal-check"
-        ],
-        "code-analysis/drupal-check": [
-            "vendor/bin/drupal-check --deprecations --analysis --exclude-dir=vendor *.* src"
-        ],
-        "coding-standards-apply": [
-            "@coding-standards-apply/phpcs"
-        ],
-        "coding-standards-apply/phpcs": [
-            "vendor/bin/phpcbf --standard=phpcs.xml.dist"
-        ],
-        "coding-standards-check": [
-            "@coding-standards-check/phpcs"
-        ],
-        "coding-standards-check/phpcs": [
-            "vendor/bin/phpcs --standard=phpcs.xml.dist"
-        ]
     }
 }

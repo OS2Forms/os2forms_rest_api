@@ -9,7 +9,7 @@ dependencies:
     module:
       - os2forms_rest_api
 id: entity.file
-plugin_id: "entity:file"
+plugin_id: 'entity:file'
 granularity: resource
 configuration:
   methods:
